@@ -82,7 +82,7 @@ def course_508(student_classes):
 def taken_all_foundation(student_classes):
     if course_500(student_classes) is not True and course_502(student_classes) is not True and course_504(
             student_classes) is not True and course_506(student_classes) is not True and course_508(
-        student_classes) is not True:
+            student_classes) is not True:
         return True
     else:
         return False
@@ -150,8 +150,7 @@ def course_570(student_classes):
     return (student_classes[B510] is not None) and (student_classes[B520] is not None) and (
                 student_classes[B530] is not None) and (student_classes[B540] is not None) and (
                        student_classes[B550] is not None) and (student_classes[B560] is not None) and (
-                       student_classes[B570] is None) and (student_classes[3] == "MBA") and (core_count >= 7) and (
-                       core_count < 10)
+                       student_classes[B570] is None) and (student_classes[3] == "MBA") and (core_count >= 7)
 
     return ((core_count >= 7) and (core_count < 10)) and student_classes[B570] is None
 

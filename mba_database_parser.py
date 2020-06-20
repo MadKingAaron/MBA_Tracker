@@ -96,6 +96,16 @@ class Spreadsheet:
         self.fontClipboard = fontRange
 
     def copyClipboardToAllWS(self):
+
+        self.copyClipboardToFoundationWS()
+
+        self.copyClipboardToCoreWS()
+
+        self.copyClipboardToSpecialTopicsWS()
+
+        pass
+
+    def copyClipboardToFoundationWS(self):
         for course in self.foundation_courses:
             self.foundation_courses[course].clearRange(self.table_startingCol, self.table_startingRow,
                                                        self.table_endCol, self.table_endRow)
@@ -103,6 +113,7 @@ class Spreadsheet:
                                                        self.table_endCol, self.table_endRow)
             self.foundation_courses[course].calculateCounts()
 
+    def copyClipboardToCoreWS(self):
         for course in self.core_courses:
             self.core_courses[course].clearRange(self.table_startingCol, self.table_startingRow,
                                                  self.table_endCol, self.table_endRow)
@@ -110,14 +121,13 @@ class Spreadsheet:
                                                  self.table_endRow)
             self.core_courses[course].calculateCounts()
 
+    def copyClipboardToSpecialTopicsWS(self):
         for course in self.special_topics_courses:
             self.special_topics_courses[course].clearRange(self.table_startingCol, self.table_startingRow,
                                                            self.table_endCol, self.table_endRow)
             self.special_topics_courses[course].pasteRange(self.table_startingCol, self.table_startingRow,
                                                            self.table_endCol, self.table_endRow)
             self.special_topics_courses[course].calculateCounts()
-
-        pass
 
     def findEndRow(self):
         row = 3
@@ -185,8 +195,7 @@ class Spreadsheet:
         # Find start row for DD
         cell = self.main_worksheet.cell(row=row, column=col)
         while (self.main_worksheet.cell(row=row,
-                                        column=col).value is not None) and "DD" not in self.main_worksheet.cell(row=row,
-                                                                                                                column=col).value:
+            column=col).value is not None) and "DD" not in self.main_worksheet.cell(row=row, column=col).value:
             row += 1
 
         self.DD_start_row = row
@@ -252,18 +261,86 @@ class Spreadsheet:
         def clearStyle(self, cell):
             self.current_spreadsheet.blankCellStyle.copyToCell(cell)
 
+        def findRangesForCohorts(self):
+            self.findRangeForMBA()
+
+            self.findRangeForBusCert()
+
+            self.findRangeForDD()
+
+        def findRangeForMBA(self):
+            row = 3
+            col = 4
+            # Find start row for MBA
+            while (self.current_worksheet.cell(row=row, column=col).value is not None) and "MBA" not in self.current_worksheet.cell(
+                    row=row, column=col).value:
+                row += 1
+
+            self.MBA_start_row = row
+
+            # Find end row for MBA
+            while (self.current_worksheet.cell(row=row, column=col).value is not None) and "MBA" in self.current_worksheet.cell(
+                    row=row, column=col).value:
+                row += 1
+
+            row -= 1
+
+            self.MBA_end_row = row
+
+        def findRangeForBusCert(self):
+            row = 3
+            col = 4
+            # Find start row for Bus Cert
+            while (self.current_worksheet.cell(row=row,
+                column=col).value is not None) and "Bus Certificate" not in self.current_worksheet.cell(row=row, column=col).value:
+                row += 1
+
+            self.Bus_Cert_start_row = row
+
+            # Find end row for MBA
+            while (self.current_worksheet.cell(row=row,
+                column=col).value is not None) and "Bus Certificate" in self.current_worksheet.cell(row=row, column=col).value:
+                row += 1
+
+            row -= 1
+
+            self.Bus_Cert_end_row = row
+
+        def findRangeForDD(self):
+            row = 3
+            col = 4
+            # Find start row for DD
+            # cell = self.current_worksheet.cell(row=row, column=col)
+            while (self.current_worksheet.cell(row=row,
+                column=col).value is not None) and "DD" not in self.current_worksheet.cell(row=row, column=col).value:
+                row += 1
+
+            self.DD_start_row = row
+
+            # Find end row for MBA
+            while (self.current_worksheet.cell(row=row, column=col).value is not None) and (
+                    "DD" in self.current_worksheet.cell(row=row, column=col).value):
+                row += 1
+
+            row -= 1
+
+            self.DD_end_row = row
+
     class CoreWorksheet(Worksheet):
         def __init__(self, current_spreadsheet, current_worksheet_name):
             super().__init__(current_spreadsheet, current_worksheet_name)
 
         def calculateCounts(self):
-            MBA_subtotal = "=SUBTOTAL(3, D" + str(self.current_spreadsheet.MBA_start_row) + ":D" + str(
-                self.current_spreadsheet.MBA_end_row) + ")"
+            self.findRangeForMBA()
+            self.findRangeForDD()
+
+            MBA_subtotal = "=SUBTOTAL(3, D" + str(self.MBA_start_row) + ":D" + str(
+                self.MBA_end_row) + ")"
             self.current_worksheet.cell(row=169, column=4).value = MBA_subtotal
 
             if "570" not in self.current_worksheet_name:
-                DD_subtotal = "=SUBTOTAL(3, D" + str(self.current_spreadsheet.DD_start_row) + ":D" + str(
-                    self.current_spreadsheet.DD_end_row) + ")"
+                DD_subtotal = "=SUBTOTAL(3, D" + str(self.DD_start_row) + ":D" + str(
+                    self.DD_end_row) + ")"
                 self.current_worksheet.cell(row=170, column=4).value = DD_subtotal
 
     class FoundationWorksheet(Worksheet):
@@ -271,16 +348,18 @@ class Spreadsheet:
             super().__init__(current_spreadsheet, current_worksheet_name)
 
         def calculateCounts(self):
-            MBA_subtotal = "=SUBTOTAL(3, D" + str(self.current_spreadsheet.MBA_start_row) + ":D" + str(
-                self.current_spreadsheet.MBA_end_row) + ")"
+            self.findRangesForCohorts()
+
+            MBA_subtotal = "=SUBTOTAL(3, D" + str(self.MBA_start_row) + ":D" + str(
+                self.MBA_end_row) + ")"
             self.current_worksheet.cell(row=169, column=4).value = MBA_subtotal
 
-            DD_subtotal = "=SUBTOTAL(3, D" + str(self.current_spreadsheet.DD_start_row) + ":D" + str(
-                self.current_spreadsheet.DD_end_row) + ")"
+            DD_subtotal = "=SUBTOTAL(3, D" + str(self.DD_start_row) + ":D" + str(
+                self.DD_end_row) + ")"
             self.current_worksheet.cell(row=170, column=4).value = DD_subtotal
 
-            Bus_Cert_subtotal = "=SUBTOTAL(3, D" + str(self.current_spreadsheet.Bus_Cert_start_row) + ":D" + str(
-                self.current_spreadsheet.Bus_Cert_end_row) + ")"
+            Bus_Cert_subtotal = "=SUBTOTAL(3, D" + str(self.Bus_Cert_start_row) + ":D" + str(
+                self.Bus_Cert_end_row) + ")"
             self.current_worksheet.cell(row=171, column=4).value = Bus_Cert_subtotal
 
     class STWorksheet(Worksheet):
@@ -288,8 +367,10 @@ class Spreadsheet:
             super().__init__(current_spreadsheet, current_worksheet_name)
 
         def calculateCounts(self):
-            MBA_subtotal = "=SUBTOTAL(3, D" + str(self.current_spreadsheet.MBA_start_row) + ":D" + str(
-                self.current_spreadsheet.MBA_end_row) + ")"
+            self.findRangesForCohorts()
+
+            MBA_subtotal = "=SUBTOTAL(3, D" + str(self.MBA_start_row) + ":D" + str(
+                self.MBA_end_row) + ")"
             self.current_worksheet.cell(row=169, column=4).value = MBA_subtotal
 
     class Style:
