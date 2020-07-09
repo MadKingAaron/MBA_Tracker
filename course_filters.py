@@ -88,6 +88,14 @@ def taken_all_foundation(student_classes):
         return False
 
 
+def count_found_courses(student_classes):
+    found_count = 0
+    for i in range(B500, B510):
+        if student_classes[i] is not None:
+            found_count += 1
+    return found_count
+
+
 # Core Course Functions
 
 def count_core_courses(student_classes):
@@ -147,12 +155,14 @@ def course_570(student_classes):
     core_count = count_core_courses(student_classes)
 
     # Temporary
-    return (student_classes[B510] is not None) and (student_classes[B520] is not None) and (
-                student_classes[B530] is not None) and (student_classes[B540] is not None) and (
-                       student_classes[B550] is not None) and (student_classes[B560] is not None) and (
-                       student_classes[B570] is None) and (student_classes[3] == "MBA") and (core_count >= 7)
+    student_classes[8] = count_core_courses(student_classes)
 
-    return ((core_count >= 7) and (core_count < 10)) and student_classes[B570] is None
+    # return (student_classes[B510] is not None) and (student_classes[B520] is not None) and (
+    #         student_classes[B530] is not None) and (student_classes[B540] is not None) and (
+    #                student_classes[B550] is not None) and (student_classes[B560] is not None) and (
+    #                student_classes[B570] is None) and (student_classes[3] == "MBA") and (core_count >= 7)
+
+    return ((core_count >= 6) and (core_count < 10)) and student_classes[B570] is None and (student_classes[3] == 'MBA')
 
 
 # Special Topics Functions
